@@ -25,4 +25,10 @@
       "id": "7b839bda5fd6465a9ce326dd8defc789",
     },
   ],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": true,
+    },
+  },
 }
