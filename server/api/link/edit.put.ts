@@ -11,9 +11,12 @@ export default eventHandler(async (event) => {
   }
   const link = await readValidatedBody(event, LinkSchema.parse)
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { 'SINK-KV': KV } = cloudflare.env
 
-  const existingLink: z.infer<typeof LinkSchema> | null = await KV.get(`link:${link.slug}`, { type: 'json' })
+  const existingLink: z.infer<typeof LinkSchema> | null = await KV.get(
+    `link:${link.slug}`,
+    { type: 'json' },
+  )
   if (existingLink) {
     const newLink = {
       ...existingLink,

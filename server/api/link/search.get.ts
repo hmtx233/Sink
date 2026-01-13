@@ -6,7 +6,7 @@ interface Link {
 
 export default eventHandler(async (event) => {
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { 'SINK-KV': KV } = cloudflare.env
   const list: Link[] = []
   let finalCursor: string | undefined
 
@@ -32,7 +32,10 @@ export default eventHandler(async (event) => {
             }
             else {
               // Forward compatible with links without metadata
-              const { metadata, value: link } = await KV.getWithMetadata(key.name, { type: 'json' })
+              const { metadata, value: link } = await KV.getWithMetadata(
+                key.name,
+                { type: 'json' },
+              )
               if (link) {
                 list.push({
                   slug: key.name.replace('link:', ''),

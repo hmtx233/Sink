@@ -5,14 +5,20 @@ import { parsePath, withQuery } from 'ufo'
 export default eventHandler(async (event) => {
   const { pathname: slug } = parsePath(event.path.replace(/^\/|\/$/g, '')) // remove leading and trailing slashes
   const { slugRegex, reserveSlug } = useAppConfig(event)
-  const { homeURL, linkCacheTtl, redirectWithQuery, caseSensitive } = useRuntimeConfig(event)
+  const { homeURL, linkCacheTtl, redirectWithQuery, caseSensitive }
+    = useRuntimeConfig(event)
   const { cloudflare } = event.context
 
   if (event.path === '/' && homeURL)
     return sendRedirect(event, homeURL)
 
-  if (slug && !reserveSlug.includes(slug) && slugRegex.test(slug) && cloudflare) {
-    const { KV } = cloudflare.env
+  if (
+    slug
+    && !reserveSlug.includes(slug)
+    && slugRegex.test(slug)
+    && cloudflare
+  ) {
+    const { 'SINK-KV': KV } = cloudflare.env
 
     let link: z.infer<typeof LinkSchema> | null = null
 
@@ -24,7 +30,10 @@ export default eventHandler(async (event) => {
 
     // fallback to original slug if caseSensitive is false and the slug is not found
     if (!caseSensitive && !link && lowerCaseSlug !== slug) {
-      console.log('original slug fallback:', `slug:${slug} lowerCaseSlug:${lowerCaseSlug}`)
+      console.log(
+        'original slug fallback:',
+        `slug:${slug} lowerCaseSlug:${lowerCaseSlug}`,
+      )
       link = await getLink(slug)
     }
 
@@ -36,8 +45,14 @@ export default eventHandler(async (event) => {
       catch (error) {
         console.error('Failed write access log:', error)
       }
-      const target = redirectWithQuery ? withQuery(link.url, getQuery(event)) : link.url
-      return sendRedirect(event, target, +useRuntimeConfig(event).redirectStatusCode)
+      const target = redirectWithQuery
+        ? withQuery(link.url, getQuery(event))
+        : link.url
+      return sendRedirect(
+        event,
+        target,
+        +useRuntimeConfig(event).redirectStatusCode,
+      )
     }
   }
 })

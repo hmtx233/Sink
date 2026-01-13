@@ -34,7 +34,7 @@ export default eventHandler(async (event) => {
   }
 
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { 'SINK-KV': KV } = cloudflare.env
   const existingLink = await KV.get(`link:${link.slug}`)
   if (existingLink) {
     throw createError({
